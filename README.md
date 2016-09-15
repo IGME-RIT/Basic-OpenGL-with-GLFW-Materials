@@ -4,7 +4,10 @@ This program introduces basic concepts involved in writing an OpenGL program.
 
 # About
 
-This tutorial combines concepts from the texturing, and cube rendering demos to render a textured 3D object.
+Materials are commonly used within graphics programs to manage data associated with rendering.
+With materials it can become easier to draw many different objects.
+This example demonstrates a basic implementation of a material class that owns a shader program and textures.
+This example also demonstrates the use of reference counting to keep track of textures and shaders.
 
 # Setup
 

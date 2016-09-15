@@ -1,5 +1,5 @@
 /*
-Title: Texturing a Cube
+Title: Materials
 File Name: texture.cpp
 Copyright ? 2016
 Author: David Erbelding
@@ -41,7 +41,6 @@ Texture::Texture(char* filePath)
     // Fill our openGL side texture object.
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, FreeImage_GetWidth(bitmap32), FreeImage_GetHeight(bitmap32),
         0, GL_BGRA, GL_UNSIGNED_BYTE, static_cast<void*>(FreeImage_GetBits(bitmap32)));
-
 
 
     // Set texture sampling parameters

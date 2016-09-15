@@ -1,5 +1,5 @@
 /*
-Title: Texturing a Cube
+Title: Materials
 File Name: transform2d.cpp
 Copyright ? 2016
 Author: David Erbelding

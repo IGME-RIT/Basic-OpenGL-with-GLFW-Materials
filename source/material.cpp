@@ -1,5 +1,5 @@
 /*
-Title: Texturing a Cube
+Title: Materials
 File Name: material.cpp
 Copyright ? 2016
 Author: David Erbelding
@@ -24,8 +24,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "../header/material.h"
 
-Material::Material()
+Material::Material(ShaderProgram * shaderProgram)
 {
+    // Increment the reference counter on the shader program.
+    shaderProgram->IncRefCount();
+    m_shaderProgram = shaderProgram;
 }
 
 Material::~Material()
@@ -39,18 +42,6 @@ Material::~Material()
     {
         m_textures[i]->DecRefCount();
     }
-}
-
-void Material::SetShaderProgram(ShaderProgram * shaderProgram)
-{
-    shaderProgram->IncRefCount();
-
-    // Decrement old shader program.
-    if (m_shaderProgram != nullptr)
-        m_shaderProgram->DecRefCount();
-
-    // Assign new shader program.
-    m_shaderProgram = shaderProgram;
 }
 
 void Material::SetTexture(char* name, Texture* texture)
@@ -145,7 +136,7 @@ void Material::Bind()
 
 void Material::Unbind()
 {
-    // Unbind all textures
+    // Unbind all owned objects.
     for (int i = 0; i < m_textureUniforms.size(); i++)
     {
         glActiveTexture(GL_TEXTURE0 + i);

@@ -1,5 +1,5 @@
 /*
-Title: Texturing a Cube
+Title: Materials
 File Name: material.h
 Copyright ? 2016
 Author: David Erbelding
@@ -36,19 +36,20 @@ private:
 
     // Texture uniforms in use.
     std::vector<GLuint> m_textureUniforms;
-    // Texture buffer indices.
+    // Texture objects.
     std::vector<Texture*> m_textures;
 
     // Uniform for matrix.
     std::vector<GLuint> m_matrixUniforms;
-    // 
+    // Matrices to bind with material.
     std::vector<glm::mat4> m_matrices;
 
 
 public:
-    Material();
+    // Create a material using a given shader program.
+    // If you want to use a different shader program, create a new material.
+    Material(ShaderProgram* shaderProgram);
     ~Material();
-    void SetShaderProgram(ShaderProgram* shaderProgram);
     void SetTexture(char* name, Texture* texture);
     void SetMatrix(char* name, glm::mat4 matrix);
 

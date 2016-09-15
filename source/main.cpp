@@ -1,5 +1,5 @@
 ﻿/*
-Title: Texturing a Cube
+Title: Materials
 File Name: main.cpp
 Copyright � 2016
 Author: David Erbelding
@@ -36,14 +36,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../header/texture.h"
 #include <iostream>
 
-Mesh* cube;
+
 
 
 // Store the current dimensions of the viewport.
 glm::vec2 viewportDimensions = glm::vec2(800, 600);
 glm::vec2 mousePosition = glm::vec2();
 
-FPSController controller = FPSController();
 
 // Window resize callback
 void resizeCallback(GLFWwindow* window, int width, int height)
@@ -83,13 +82,11 @@ int main(int argc, char **argv)
 	//	|  |     |  |
 	//	| [A]----|-[E]
 	// [B]------[F]
-
-
 	std::vector<Vertex3dUV> vertices;
     
     // Here we need to create all of the vertices of our cube.
     // Any vertices that have different texture coordinates need to be repeated with them.
-    // The vertices below are organized by face.
+    // The vertices below are organized into quads to avoid as many repetitions as possible.
 
     // ABCD
 	vertices.push_back(Vertex3dUV(glm::vec3(-1, -1, -1), glm::vec2(0, 0)));
@@ -124,7 +121,7 @@ int main(int argc, char **argv)
 
 
 	std::vector<unsigned int> indices;
-    // The vertices are ordered by faces, so we can just add indices one face at a time.
+    // The vertices are ordered as quads, so we can just add 6 indices for each.
     for (int i = 0; i < 6; i++)
     {
         indices.push_back(i * 4 + 0);
@@ -138,72 +135,78 @@ int main(int argc, char **argv)
 
 
 	// Create shape object
-	cube = new Mesh(vertices, indices);
+    Mesh* cube = new Mesh(vertices, indices);
 	
     // The transform being used to draw our shape
     Transform3D transform;
 	transform.SetPosition(glm::vec3(0, 0, -5));
 
-    // The transform being used to draw our second shape
+    // The transform being used to draw our second shape.
     Transform3D transform2;
     transform2.SetPosition(glm::vec3(3, 0, -5));
-    
+
+
+    // Make a first person controller for the camera.
+    FPSController controller = FPSController();
 
 
 	// Create Shaders
     Shader* vertexShader = new Shader("../shaders/vertex.glsl", GL_VERTEX_SHADER);
     Shader* fragmentShader = new Shader("../shaders/fragment.glsl", GL_FRAGMENT_SHADER);
 
-    // Create shader Program
+
+    // Create A Shader Program
+    // The class wraps all of the functionality of a gl shader program.
     ShaderProgram* shaderProgram = new ShaderProgram();
     shaderProgram->AttachShader(vertexShader);
     shaderProgram->AttachShader(fragmentShader);
 
-    Material* material = new Material();
-    material->SetShaderProgram(shaderProgram);
+
+    // Here we create a material.
+    // Materials are in no way specific to OpenGL.
+    // A material is an object that describes and manages the way that something is rendered.
+    // This basic material class has shaders, textures, and matrices.
+    // This basically turns all of our previous binding code before rendering a mesh into a single line.
+    Material* material = new Material(shaderProgram);
+    // tex here refers to the uniform variable in the shader that the texture is to be used with.
     material->SetTexture("tex", new Texture("../assets/texture.png"));
 
-    Material* material2 = new Material();
-    material2->SetShaderProgram(shaderProgram);
+    // Create another material
+    Material* material2 = new Material(shaderProgram);
     material2->SetTexture("tex", new Texture("../assets/texture2.png"));
 
+    // Print instructions to the console.
     std::cout << "Use WASD to move, and the mouse to look around." << std::endl;
-    std::cout << "Press escape to exit" << std::endl;
+    std::cout << "Press escape or alt-f4 to exit." << std::endl;
 
 
 
 	// Main Loop
 	while (!glfwWindowShouldClose(window))
 	{
+        // Exit when escape is pressed.
+        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) break;
+
+        // Calculate delta time.
         float dt = glfwGetTime();
+        // Reset the timer.
         glfwSetTime(0);
-
-        // Exit when escape is pressed
-        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        {
-            break;
-        }
-
         
 
         // Update the player controller
         controller.Update(window, viewportDimensions, mousePosition, dt);
 
-        // rotate square
+        // rotate cube transform
         transform.RotateY(1.0f * dt);
 
 
 
-        // Calculate view matrix.
-        glm::mat4 viewMatrix = controller.GetTransform().GetInverseMatrix();
-
-        // Shortcut: use glm perspective matrix.
-        glm::mat4 perspectiveProjection= glm::perspective(.7f, viewportDimensions.x / viewportDimensions.y, 1.f, 100.f);
-
-        // Compose view and projection into one matrix to send to the gpu
-        glm::mat4 viewProjection = perspectiveProjection * viewMatrix;
-
-
+        // View matrix.
+        glm::mat4 view = controller.GetTransform().GetInverseMatrix();
+        // Projection matrix.
+        glm::mat4 projection = glm::perspective(.75f, viewportDimensions.x / viewportDimensions.y, 1.f, 100.f);
+        // Compose view and projection.
+        glm::mat4 viewProjection = projection * view;
 
 
         // Clear the color and depth buffers
@@ -211,24 +214,27 @@ int main(int argc, char **argv)
         glEnable(GL_DEPTH_TEST);
         glClearColor(0.0, 0.0, 0.0, 0.0);
 
-		// Set the current shader program.
 
-        // Send the camera matrix to the shader
+        // Set the camera and world matrices to the shader
+        // The string names correspond directly to the uniform names within the shader.
         material->SetMatrix("cameraView", viewProjection);
-
-		// Draw using the worldMatrixUniform
         material->SetMatrix("worldMatrix", transform.GetMatrix());
+        // Bind the material
         material->Bind();
-
+        // Draw
         cube->Draw();
+        // Unbind material. (Not required if you have no bugs, but good practice for when you do.)
+        material->Unbind();
 
+
+        // Sec
+        material2->SetMatrix("cameraView", viewProjection);
         material2->SetMatrix("worldMatrix", transform2.GetMatrix());
         material2->Bind();
-
         cube->Draw();
 
 		// Stop using the shader program.
-        material->Unbind();
+        material2->Unbind();
 
 		// Swap the backbuffer to the front.
 		glfwSwapBuffers(window);

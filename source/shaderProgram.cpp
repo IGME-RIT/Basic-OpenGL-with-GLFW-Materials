@@ -1,5 +1,5 @@
 /*
-Title: Texturing a Cube
+Title: Materials
 File Name: shaderProgram.cpp
 Copyright ? 2016
 Author: David Erbelding

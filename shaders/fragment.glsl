@@ -1,5 +1,5 @@
 /*
-Title: Drawing a Cube
+Title: Materials
 File Name: fragment.glsl
 Copyright ? 2016
 Author: David Erbelding
