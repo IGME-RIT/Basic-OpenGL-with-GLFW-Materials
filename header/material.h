@@ -23,10 +23,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
 #include "../header/shaderProgram.h"
+#include "../header/texture.h"
 #include "glm/gtc/matrix_transform.hpp"
 #include <vector>
 
-class Material {
+class Material
+{
+
 private:
     // Shader program
     ShaderProgram* m_shaderProgram = nullptr;
@@ -34,7 +37,7 @@ private:
     // Texture uniforms in use.
     std::vector<GLuint> m_textureUniforms;
     // Texture buffer indices.
-    std::vector<GLint> m_textures;
+    std::vector<Texture*> m_textures;
 
     // Uniform for matrix.
     std::vector<GLuint> m_matrixUniforms;
@@ -46,7 +49,7 @@ public:
     Material();
     ~Material();
     void SetShaderProgram(ShaderProgram* shaderProgram);
-    void SetTexture(char* name, GLuint texture);
+    void SetTexture(char* name, Texture* texture);
     void SetMatrix(char* name, glm::mat4 matrix);
 
     void Bind();

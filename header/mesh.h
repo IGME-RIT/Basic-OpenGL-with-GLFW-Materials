@@ -31,7 +31,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 //struct for vertex with uv
-struct Vertex3dUV {
+struct Vertex3dUV
+{
 
     glm::vec3 m_position;
     glm::vec2 m_texCoord;

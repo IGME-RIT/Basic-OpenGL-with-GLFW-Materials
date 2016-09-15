@@ -26,7 +26,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 
 // Wraps opengl shader program functionality
-class ShaderProgram {
+class ShaderProgram
+{
 
 private:
     // These shader objects wrap the functionality of loading and compiling shaders from files.

@@ -30,8 +30,15 @@ Material::Material()
 
 Material::~Material()
 {
+    // Free shader program
     if (m_shaderProgram != nullptr)
         m_shaderProgram->DecRefCount();
+
+    // Free textures
+    for (int i = 0; i < m_textures.size(); i++)
+    {
+        m_textures[i]->DecRefCount();
+    }
 }
 
 void Material::SetShaderProgram(ShaderProgram * shaderProgram)
@@ -46,7 +53,7 @@ void Material::SetShaderProgram(ShaderProgram * shaderProgram)
     m_shaderProgram = shaderProgram;
 }
 
-void Material::SetTexture(char* name, GLuint texture)
+void Material::SetTexture(char* name, Texture* texture)
 {
     // Bind shader program
     m_shaderProgram->Bind();
@@ -61,12 +68,15 @@ void Material::SetTexture(char* name, GLuint texture)
         return;
     }
 
+    texture->IncRefCount();
+
     // Search through current texture uniforms to find a match.
     for (int i = 0; i < m_textureUniforms.size(); i++)
     {
         // If there's a match replace the texture.
         if (m_textureUniforms[i] == uniform)
         {
+            m_textures[i]->DecRefCount();
             m_textures[i] = texture;
             return;
         }
@@ -120,7 +130,7 @@ void Material::Bind()
         glActiveTexture(GL_TEXTURE0 + i);
 
         // Bind the texture
-        glBindTexture(GL_TEXTURE_2D, m_textures[i]);
+        glBindTexture(GL_TEXTURE_2D, m_textures[i]->GetGLTexture());
 
         // Use the the texture from GL_TEXTURE0 + i at the given texture uniform location.
         glUniform1i(m_textureUniforms[i], i);

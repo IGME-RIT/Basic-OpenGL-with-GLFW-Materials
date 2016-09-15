@@ -33,13 +33,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../header/fpsController.h"
 #include "../header/transform3d.h"
 #include "../header/material.h"
+#include "../header/texture.h"
 #include <iostream>
 
 Mesh* cube;
-
-// The transform being used to draw our shape
-Transform3D transform;
-
 
 
 // Store the current dimensions of the viewport.
@@ -64,23 +61,22 @@ void mouseMoveCallback(GLFWwindow *window, GLdouble mouseX, GLdouble mouseY)
 
 int main(int argc, char **argv)
 {
-	// Initializes the GLFW library
+	// Initialize GLFW
 	glfwInit();
 
 	// Initialize window
-	GLFWwindow* window = glfwCreateWindow(viewportDimensions.x, viewportDimensions.y, "Rusty Cube", nullptr, nullptr);
-
+	GLFWwindow* window = glfwCreateWindow(viewportDimensions.x, viewportDimensions.y, "Materials", nullptr, nullptr);
 	glfwMakeContextCurrent(window);
 
-	//set resize callback
+	// Set window callbacks
 	glfwSetFramebufferSizeCallback(window, resizeCallback);
     glfwSetCursorPosCallback(window, mouseMoveCallback);
 
-	// Initializes the glew library
+	// Initialize glew
 	glewInit();
 
 
-	// At first glance, a cube may appear simple...
+	// Make a Cube
     //    [C]------[G]
 	// [D]------[H] |
 	//	|  |     |  |
@@ -94,38 +90,37 @@ int main(int argc, char **argv)
     // Here we need to create all of the vertices of our cube.
     // Any vertices that have different texture coordinates need to be repeated with them.
     // The vertices below are organized by face.
-    // The texture coordinates are using partial squares from the texture to avoid obvious repeating.
 
     // ABCD
 	vertices.push_back(Vertex3dUV(glm::vec3(-1, -1, -1), glm::vec2(0, 0)));
-    vertices.push_back(Vertex3dUV(glm::vec3(-1, -1, 1), glm::vec2(0, .5)));
-    vertices.push_back(Vertex3dUV(glm::vec3(-1, 1, -1), glm::vec2(.5, 0)));
-    vertices.push_back(Vertex3dUV(glm::vec3(-1, 1, 1), glm::vec2(.5, .5)));
-    // EFGH
-    vertices.push_back(Vertex3dUV(glm::vec3(1, -1, -1), glm::vec2(.5, 0)));
-    vertices.push_back(Vertex3dUV(glm::vec3(1, 1, -1), glm::vec2(1, 0)));
-    vertices.push_back(Vertex3dUV(glm::vec3(1, -1, 1), glm::vec2(.5, .5)));
-    vertices.push_back(Vertex3dUV(glm::vec3(1, 1, 1), glm::vec2(1, .5)));
-    // ABEF
-    vertices.push_back(Vertex3dUV(glm::vec3(-1, -1, -1), glm::vec2(.5, .5)));
-    vertices.push_back(Vertex3dUV(glm::vec3(1, -1, -1), glm::vec2(1, .5)));
-    vertices.push_back(Vertex3dUV(glm::vec3(-1, -1, 1), glm::vec2(.5, 1)));
-    vertices.push_back(Vertex3dUV(glm::vec3(1, -1, 1), glm::vec2(1, 1)));
+    vertices.push_back(Vertex3dUV(glm::vec3(-1, -1, 1), glm::vec2(1, 0)));
+    vertices.push_back(Vertex3dUV(glm::vec3(-1, 1, -1), glm::vec2(0, 1)));
+    vertices.push_back(Vertex3dUV(glm::vec3(-1, 1, 1), glm::vec2(1, 1)));
+    // FEHG
+    vertices.push_back(Vertex3dUV(glm::vec3(1, -1, 1), glm::vec2(0, 0)));
+    vertices.push_back(Vertex3dUV(glm::vec3(1, -1, -1), glm::vec2(1, 0)));
+    vertices.push_back(Vertex3dUV(glm::vec3(1, 1, 1), glm::vec2(0, 1)));
+    vertices.push_back(Vertex3dUV(glm::vec3(1, 1, -1), glm::vec2(1, 1)));
+    // BFAE
+    vertices.push_back(Vertex3dUV(glm::vec3(1, -1, -1), glm::vec2(0, 0)));
+    vertices.push_back(Vertex3dUV(glm::vec3(-1, -1, -1), glm::vec2(1, 0)));
+    vertices.push_back(Vertex3dUV(glm::vec3(1, -1, 1), glm::vec2(0, 1)));
+    vertices.push_back(Vertex3dUV(glm::vec3(-1, -1, 1), glm::vec2(1, 1)));
     // CDGH
-    vertices.push_back(Vertex3dUV(glm::vec3(-1, 1, -1), glm::vec2(0, .5)));
-    vertices.push_back(Vertex3dUV(glm::vec3(-1, 1, 1), glm::vec2(0, 1)));
-    vertices.push_back(Vertex3dUV(glm::vec3(1, 1, -1), glm::vec2(.5, .5)));
-    vertices.push_back(Vertex3dUV(glm::vec3(1, 1, 1), glm::vec2(.5, 1)));
+    vertices.push_back(Vertex3dUV(glm::vec3(-1, 1, 1), glm::vec2(0, 0)));
+    vertices.push_back(Vertex3dUV(glm::vec3(1, 1, 1), glm::vec2(1, 0)));
+    vertices.push_back(Vertex3dUV(glm::vec3(-1, 1, -1), glm::vec2(0, 1)));
+    vertices.push_back(Vertex3dUV(glm::vec3(1, 1, -1), glm::vec2(1, 1)));
     // ACEG
-    vertices.push_back(Vertex3dUV(glm::vec3(-1, -1, -1), glm::vec2(.25, .25)));
-    vertices.push_back(Vertex3dUV(glm::vec3(-1, 1, -1), glm::vec2(.75, .25)));
-    vertices.push_back(Vertex3dUV(glm::vec3(1, -1, -1), glm::vec2(.25, .75)));
-    vertices.push_back(Vertex3dUV(glm::vec3(1, 1, -1), glm::vec2(.75, .75)));
+    vertices.push_back(Vertex3dUV(glm::vec3(1, -1, -1), glm::vec2(0, 0)));
+    vertices.push_back(Vertex3dUV(glm::vec3(-1, -1, -1), glm::vec2(1, 0)));
+    vertices.push_back(Vertex3dUV(glm::vec3(1, 1, -1), glm::vec2(0, 1)));
+    vertices.push_back(Vertex3dUV(glm::vec3(-1, 1, -1), glm::vec2(1, 1)));
     // BDFH
     vertices.push_back(Vertex3dUV(glm::vec3(-1, -1, 1), glm::vec2(0, 0)));
-    vertices.push_back(Vertex3dUV(glm::vec3(1, -1, 1), glm::vec2(.5, 0)));
-    vertices.push_back(Vertex3dUV(glm::vec3(-1, 1, 1), glm::vec2(0, .5)));
-    vertices.push_back(Vertex3dUV(glm::vec3(1, 1, 1), glm::vec2(.5, .5)));
+    vertices.push_back(Vertex3dUV(glm::vec3(1, -1, 1), glm::vec2(1, 0)));
+    vertices.push_back(Vertex3dUV(glm::vec3(-1, 1, 1), glm::vec2(0, 1)));
+    vertices.push_back(Vertex3dUV(glm::vec3(1, 1, 1), glm::vec2(1, 1)));
 
 
 	std::vector<unsigned int> indices;
@@ -145,45 +140,14 @@ int main(int argc, char **argv)
 	// Create shape object
 	cube = new Mesh(vertices, indices);
 	
-
-    // In OpenGL, the Z-Axis points out of the screen.
-    // Put the cube 5 units away from the camera.
+    // The transform being used to draw our shape
+    Transform3D transform;
 	transform.SetPosition(glm::vec3(0, 0, -5));
+
+    // The transform being used to draw our second shape
+    Transform3D transform2;
+    transform2.SetPosition(glm::vec3(3, 0, -5));
     
-
-
-    // Texture Setup:
-    GLuint texture;
-
-    // Load the file.
-    FIBITMAP* bitmap = FreeImage_Load(FreeImage_GetFileType("../assets/texture.png"), "../assets/texture.png");
-    // Convert the file to 32 bits so we can use it.
-    FIBITMAP* bitmap32 = FreeImage_ConvertTo32Bits(bitmap);
-
-
-    // Create an OpenGL texture.
-    glGenTextures(1, &texture);
-
-    // Bind our texture.
-    glBindTexture(GL_TEXTURE_2D, texture);
-
-    // Fill our openGL side texture object.
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, FreeImage_GetWidth(bitmap32), FreeImage_GetHeight(bitmap32),
-        0, GL_BGRA, GL_UNSIGNED_BYTE, static_cast<void*>(FreeImage_GetBits(bitmap32)));
-
-    // We can unload the images now that the texture data has been buffered with opengl
-    FreeImage_Unload(bitmap);
-    FreeImage_Unload(bitmap32);
-
-    // Set texture sampling parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-
-    // Unbind the texture.
-    glBindTexture(GL_TEXTURE_2D, 0);
 
 
 	// Create Shaders
@@ -194,22 +158,25 @@ int main(int argc, char **argv)
     ShaderProgram* shaderProgram = new ShaderProgram();
     shaderProgram->AttachShader(vertexShader);
     shaderProgram->AttachShader(fragmentShader);
-    shaderProgram->Bind();
 
     Material* material = new Material();
     material->SetShaderProgram(shaderProgram);
-    material->SetTexture("tex", texture);
+    material->SetTexture("tex", new Texture("../assets/texture.png"));
 
+    Material* material2 = new Material();
+    material2->SetShaderProgram(shaderProgram);
+    material2->SetTexture("tex", new Texture("../assets/texture2.png"));
 
     std::cout << "Use WASD to move, and the mouse to look around." << std::endl;
     std::cout << "Press escape to exit" << std::endl;
 
 
 
-
 	// Main Loop
 	while (!glfwWindowShouldClose(window))
 	{
+        float dt = glfwGetTime();
+        glfwSetTime(0);
 
         // Exit when escape is pressed
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -220,11 +187,10 @@ int main(int argc, char **argv)
         
 
         // Update the player controller
-        controller.Update(window, viewportDimensions, mousePosition);
-
+        controller.Update(window, viewportDimensions, mousePosition, dt);
 
         // rotate square
-        transform.RotateY(.0002f);
+        transform.RotateY(1.0f * dt);
 
 
 
@@ -232,7 +198,7 @@ int main(int argc, char **argv)
         glm::mat4 viewMatrix = controller.GetTransform().GetInverseMatrix();
 
         // Shortcut: use glm perspective matrix.
-        glm::mat4 perspectiveProjection= glm::perspective(.7f, viewportDimensions.x / viewportDimensions.y, 1.f, 10.f);
+        glm::mat4 perspectiveProjection= glm::perspective(.7f, viewportDimensions.x / viewportDimensions.y, 1.f, 100.f);
 
         // Compose view and projection into one matrix to send to the gpu
         glm::mat4 viewProjection = perspectiveProjection * viewMatrix;
@@ -240,22 +206,24 @@ int main(int argc, char **argv)
 
 
 
-        // Clear the screen.
-        // We now clear the depth buffer too.
-        // The depth buffer helps OpenGL determine which polygons should be rendered on top.
-        // Try turning it off and see what happens.
+        // Clear the color and depth buffers
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
         glClearColor(0.0, 0.0, 0.0, 0.0);
 
 		// Set the current shader program.
-        material->Bind();
 
         // Send the camera matrix to the shader
         material->SetMatrix("cameraView", viewProjection);
 
 		// Draw using the worldMatrixUniform
         material->SetMatrix("worldMatrix", transform.GetMatrix());
+        material->Bind();
+
+        cube->Draw();
+
+        material2->SetMatrix("worldMatrix", transform2.GetMatrix());
+        material2->Bind();
 
         cube->Draw();
 
@@ -267,11 +235,11 @@ int main(int argc, char **argv)
 
 		// Poll input and window events.
 		glfwPollEvents();
-
 	}
 
     // Free material should free all objects used by material
     delete material;
+    delete material2;
 
 	// Free memory from shape object
 	delete cube;

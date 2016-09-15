@@ -1,6 +1,6 @@
 /*
 Title: Texturing a Cube
-File Name: shader.h
+File Name: texture.h
 Copyright ? 2016
 Author: David Erbelding
 Written under the supervision of David I. Schwartz, Ph.D., and
@@ -21,31 +21,23 @@ General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
+#pragma once
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"
-#include <string>
+#include "FreeImage.h"
+#include <iostream>
 
-class Shader
+class Texture
 {
-
 private:
-	GLuint m_shader;
-	GLenum m_type;
-
-    // Reference Counter
+    GLuint m_texture;
     unsigned int m_refCount = 0;
 
 public:
-	Shader(std::string filePath, GLenum shaderType);
-	~Shader();
-
-    GLuint GetGLShader();
-    GLenum GetGLShaderType();
-
-	bool InitFromFile(std::string, GLenum shaderType);
-	bool InitFromString(std::string shaderCode, GLenum shaderType);
-
+    Texture(char* filePath);
+    ~Texture();
     void IncRefCount();
     void DecRefCount();
+    GLuint GetGLTexture();
+
 };

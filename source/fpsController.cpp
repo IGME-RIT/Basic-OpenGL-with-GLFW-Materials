@@ -38,7 +38,7 @@ Transform3D FPSController::GetTransform()
     return m_transform;
 }
 
-void FPSController::Update(GLFWwindow* window, glm::vec2 viewportDimensions, glm::vec2 mousePosition)
+void FPSController::Update(GLFWwindow* window, glm::vec2 viewportDimensions, glm::vec2 mousePosition, float deltaTime)
 {
     // Get the distance from the center of the screen that the mouse has moved
     glm::vec2 mouseMovement = mousePosition - (viewportDimensions / 2.0f);
@@ -59,22 +59,21 @@ void FPSController::Update(GLFWwindow* window, glm::vec2 viewportDimensions, glm
     // Set the new rotation of the camera.
     m_transform.SetRotation(glm::vec3(pitch, yaw, 0));
 
-
     // Move the cursor to the center of the screen
-    glfwSetCursorPos(window, viewportDimensions.x / 2, viewportDimensions.y / 2);
+    glfwSetCursorPos(window, viewportDimensions.x / 2.0f, viewportDimensions.y / 2.0f);
 
 
     // Here we get some input, and use it to move the camera
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        m_transform.Translate(m_transform.GetForward() * .005f);
+        m_transform.Translate(m_transform.GetForward() * 5.0f * deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        m_transform.Translate(m_transform.GetRight() * -.005f);
+        m_transform.Translate(m_transform.GetRight() * -5.0f * deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        m_transform.Translate(m_transform.GetForward() * -.005f);
+        m_transform.Translate(m_transform.GetForward() * -5.0f * deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        m_transform.Translate(m_transform.GetRight() * .005f);
+        m_transform.Translate(m_transform.GetRight() * 5.0f * deltaTime);
     }
 }
