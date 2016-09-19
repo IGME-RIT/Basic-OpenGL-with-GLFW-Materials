@@ -45,11 +45,11 @@ void FPSController::Update(GLFWwindow* window, glm::vec2 viewportDimensions, glm
 
     // Calculate the horizontal view angle
     float yaw = m_transform.Rotation().y;
-    yaw += mouseMovement.x * .001f;
+    yaw += (int)mouseMovement.x * .001f;
 
     // Calculate the vertical view angle
     float pitch = m_transform.Rotation().x;
-    pitch -= mouseMovement.y * .001f;
+    pitch -= (int)mouseMovement.y * .001f;
 
     // Clamp the camera from looking up over 90 degrees.
     float halfpi = 3.1416f / 2.f;
@@ -59,8 +59,9 @@ void FPSController::Update(GLFWwindow* window, glm::vec2 viewportDimensions, glm
     // Set the new rotation of the camera.
     m_transform.SetRotation(glm::vec3(pitch, yaw, 0));
 
+
     // Move the cursor to the center of the screen
-    glfwSetCursorPos(window, viewportDimensions.x / 2.0f, viewportDimensions.y / 2.0f);
+    glfwSetCursorPos(window, mousePosition.x - mouseMovement.x, mousePosition.y - mouseMovement.y);
 
 
     // Here we get some input, and use it to move the camera
